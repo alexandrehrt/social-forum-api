@@ -3,6 +3,7 @@ package entity
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
@@ -10,10 +11,13 @@ import (
 )
 
 type User struct {
-	Username string `json:"username" gorm:"unique; not null" validate:"required"`
-	Email    string `json:"email" gorm:"unique; not null" validate:"required,email"`
-	Password string `json:"password" gorm:"not null" validate:"required"`
-	gorm.Model
+	ID        uint           `json:"id" gorm:"primaryKey;autoIncrement:true`
+	Username  string         `json:"username" gorm:"unique; not null" validate:"required"`
+	Email     string         `json:"email" gorm:"unique; not null" validate:"required,email"`
+	Password  string         `json:"password" gorm:"not null" validate:"required,min=6,max=20"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 func NewUser(username, email, password string) (*User, error) {

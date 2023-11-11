@@ -4,15 +4,12 @@ import (
 	"errors"
 	"social-api/internal/entity"
 	userRepositories "social-api/internal/models/user/repositories"
-
-	"gorm.io/gorm"
 )
 
 type UserResponse struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
-	gorm.Model
 }
 
 func Create(user *entity.User) (*UserResponse, error) {
@@ -43,7 +40,6 @@ func Create(user *entity.User) (*UserResponse, error) {
 		ID:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
-		Model:    user.Model,
 	}
 
 	return &userResponse, nil
