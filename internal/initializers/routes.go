@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SetupRoutes(app *fiber.App) {
+func Routes(app *fiber.App) {
 	routes.UserRoutes(app)
 	routes.GroupRoutes(app)
 }
