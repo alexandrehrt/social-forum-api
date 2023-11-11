@@ -9,4 +9,5 @@ import (
 func Routes(app *fiber.App) {
 	routes.UserRoutes(app)
 	routes.GroupRoutes(app)
+	routes.Login(app)
 }

@@ -1,28 +1,41 @@
-package usecases
+package userUseCases
 
 import (
 	"errors"
 	"social-api/config"
 	"social-api/internal/entity"
+
+	"gorm.io/gorm"
 )
 
-func CreateUserUseCase(user *entity.User) error {
+type UserResponse struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	gorm.Model
+}
+
+func Create(user *entity.User) (*UserResponse, error) {
 	if err := user.ValidateUser(); err != nil {
-		return err
+		return nil, err
 	}
 
-	if err := user.EncryptPassword(&user.Password); err != nil {
-		return err
+	if err := user.EncryptPassword(); err != nil {
+		return nil, err
 	}
 
-	if err := config.DB.Where("email = ?", user.Email).First(&entity.User{}).Error; err == nil {
-		return errors.New("email already exists")
+	if userExists := config.DB.Where("email = ?", user.Email).First(&entity.User{}).Error; userExists == nil {
+		return nil, errors.New("email already exists")
 	}
 
-	err := config.DB.Create(user).Error
-	if err != nil {
-		return errors.New("failed to create user")
+	if err := config.DB.Create(user).Error; err != nil {
+		return nil, errors.New("failed to create user")
 	}
 
-	return nil
+	userResponse := UserResponse{
+		Username: user.Username,
+		Email:    user.Email,
+		Model:    user.Model,
+	}
+
+	return &userResponse, nil
 }

@@ -1,6 +1,8 @@
 package config
 
 import (
+	"path/filepath"
+
 	"github.com/spf13/viper"
 )
 
@@ -17,10 +19,12 @@ type conf struct {
 }
 
 func LoadConfig(path string) (*conf, error) {
+	envFile := filepath.Join(".", ".env")
+
 	viper.SetConfigName("config")
 	viper.SetConfigType("env")
 	viper.AddConfigPath(path)
-	viper.SetConfigFile(".env")
+	viper.SetConfigFile(envFile)
 	viper.AutomaticEnv()
 	err := viper.ReadInConfig()
 	if err != nil {
