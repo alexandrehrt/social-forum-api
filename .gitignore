@@ -1,2 +1,5 @@
 .env
 .env.model
+tmp/
+.air.toml
+cmd/server/tmp/
