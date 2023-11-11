@@ -2,13 +2,14 @@ package userUseCases
 
 import (
 	"errors"
-	"social-api/config"
 	"social-api/internal/entity"
+	userRepositories "social-api/internal/models/user/repositories"
 
 	"gorm.io/gorm"
 )
 
 type UserResponse struct {
+	ID       uint   `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	gorm.Model
@@ -23,15 +24,23 @@ func Create(user *entity.User) (*UserResponse, error) {
 		return nil, err
 	}
 
-	if userExists := config.DB.Where("email = ?", user.Email).First(&entity.User{}).Error; userExists == nil {
+	err := userRepositories.FindByUsername(user)
+	if err == nil {
+		return nil, errors.New("username already exists")
+	}
+
+	err = userRepositories.FindByEmail(user)
+	if err == nil {
 		return nil, errors.New("email already exists")
 	}
 
-	if err := config.DB.Create(user).Error; err != nil {
+	user, err = userRepositories.Create(user)
+	if err != nil {
 		return nil, errors.New("failed to create user")
 	}
 
 	userResponse := UserResponse{
+		ID:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
 		Model:    user.Model,
