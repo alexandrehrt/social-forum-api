@@ -13,6 +13,15 @@ func Create(user *entity.User) (*entity.User, error) {
 	return user, nil
 }
 
+func FindById(id string) (*entity.User, error) {
+	var user entity.User
+	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func FindByUsername(user *entity.User) error {
 	if err := config.DB.Where("username = ?", user.Username).First(user).Error; err != nil {
 		return err

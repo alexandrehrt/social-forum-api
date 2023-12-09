@@ -44,3 +44,18 @@ func Create(user *entity.User) (*UserResponse, error) {
 
 	return &userResponse, nil
 }
+
+func GetUser(id string) (*UserResponse, error) {
+	user, err := userRepositories.FindById(id)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	userReponse := UserResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+	}
+
+	return &userReponse, nil
+}

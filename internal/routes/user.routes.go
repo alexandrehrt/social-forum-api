@@ -6,9 +6,8 @@ import (
 )
 
 func UserRoutes(r chi.Router) {
-	//userGroup := app.Group("/users")
 	r.Route("/users", func(r chi.Router) {
-		r.Get("/", userControllers.GetUser)
+		r.Get("/{id}", userControllers.GetUser)
 		r.Post("/create", userControllers.CreateUser)
 		r.Put("/{id}", userControllers.UpdateUser)
 		r.Delete("/{id}", userControllers.DeleteUser)

@@ -2,13 +2,30 @@ package userControllers
 
 import (
 	"encoding/json"
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"social-api/internal/entity"
 	userUseCases "social-api/internal/models/user/usecases"
 )
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Get User"))
+	id := chi.URLParam(r, "id")
+
+	userResponse, err := userUseCases.GetUser(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(userResponse)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+	}
+
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
