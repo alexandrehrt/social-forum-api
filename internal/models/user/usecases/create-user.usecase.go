@@ -2,17 +2,13 @@ package userUseCases
 
 import (
 	"errors"
+	"fmt"
 	"social-api/internal/entity"
+	"social-api/internal/models/user/dtos"
 	userRepositories "social-api/internal/models/user/repositories"
 )
 
-type UserResponse struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-}
-
-func Create(user *entity.User) (*UserResponse, error) {
+func Create(user *entity.User) (*userDTO.UserResponse, error) {
 	if err := user.ValidateUser(); err != nil {
 		return nil, err
 	}
@@ -33,49 +29,16 @@ func Create(user *entity.User) (*UserResponse, error) {
 
 	user, err = userRepositories.Create(user)
 	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+
 		return nil, errors.New("failed to create user")
 	}
 
-	userResponse := UserResponse{
+	userResponse := userDTO.UserResponse{
 		ID:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
 	}
 
 	return &userResponse, nil
-}
-
-func GetAllUsers() ([]*UserResponse, error) {
-	users, err := userRepositories.FindAll()
-	if err != nil {
-		return nil, errors.New("failed to get all users")
-	}
-
-	var userResponses []*UserResponse
-	for _, user := range users {
-		userResponse := UserResponse{
-			ID:       user.ID,
-			Username: user.Username,
-			Email:    user.Email,
-		}
-
-		userResponses = append(userResponses, &userResponse)
-	}
-
-	return userResponses, nil
-}
-
-func GetUser(id string) (*UserResponse, error) {
-	user, err := userRepositories.FindById(id)
-	if err != nil {
-		return nil, errors.New("user not found")
-	}
-
-	userReponse := UserResponse{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-	}
-
-	return &userReponse, nil
 }

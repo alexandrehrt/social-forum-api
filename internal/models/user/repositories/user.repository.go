@@ -46,3 +46,11 @@ func FindByEmail(user *entity.User) error {
 
 	return nil
 }
+
+func Delete(id string) error {
+	if err := config.DB.Where("id = ?", id).Delete(&entity.User{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

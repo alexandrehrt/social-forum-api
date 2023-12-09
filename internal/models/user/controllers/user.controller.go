@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"social-api/internal/entity"
+	"social-api/internal/models/user/dtos"
 	userUseCases "social-api/internal/models/user/usecases"
 )
 
@@ -16,9 +17,9 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userResponses []*userUseCases.UserResponse
+	var userResponses []*userDTO.UserResponse
 	for _, user := range users {
-		userResponse := userUseCases.UserResponse{
+		userResponse := userDTO.UserResponse{
 			ID:       user.ID,
 			Username: user.Username,
 			Email:    user.Email,
@@ -56,7 +57,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user *entity.User
+	user := new(entity.User)
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -66,7 +67,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	userResponse, err := userUseCases.Create(user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
@@ -86,8 +87,14 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := chi.URLParam(r, "id")
+
+	err := userUseCases.DeleteUser(id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	w.WriteHeader(http.StatusNoContent)
-	w.Write([]byte("Delete User " + id))
 }
