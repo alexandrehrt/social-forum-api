@@ -45,6 +45,26 @@ func Create(user *entity.User) (*UserResponse, error) {
 	return &userResponse, nil
 }
 
+func GetAllUsers() ([]*UserResponse, error) {
+	users, err := userRepositories.FindAll()
+	if err != nil {
+		return nil, errors.New("failed to get all users")
+	}
+
+	var userResponses []*UserResponse
+	for _, user := range users {
+		userResponse := UserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		}
+
+		userResponses = append(userResponses, &userResponse)
+	}
+
+	return userResponses, nil
+}
+
 func GetUser(id string) (*UserResponse, error) {
 	user, err := userRepositories.FindById(id)
 	if err != nil {

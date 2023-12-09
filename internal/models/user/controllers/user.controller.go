@@ -8,6 +8,33 @@ import (
 	userUseCases "social-api/internal/models/user/usecases"
 )
 
+func GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := userUseCases.GetAllUsers()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	var userResponses []*userUseCases.UserResponse
+	for _, user := range users {
+		userResponse := userUseCases.UserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+		}
+		userResponses = append(userResponses, &userResponse)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(userResponses)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+	}
+}
+
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
@@ -29,7 +56,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	user := new(entity.User)
+	var user *entity.User
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
