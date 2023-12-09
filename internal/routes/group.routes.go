@@ -1,30 +1,31 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/go-chi/chi/v5"
+	"net/http"
+)
 
-func GroupRoutes(app *fiber.App) {
-	groupGroup := app.Group("/group")
-
-	groupGroup.Get("/", getGroup)
-	groupGroup.Post("/", createGroup)
-	groupGroup.Put("/:id", updateGroup)
-	groupGroup.Delete("/:id", deleteGroup)
+func GroupRoutes(r chi.Router) {
+	r.Route("/groups", func(r chi.Router) {
+		r.Get("/", getGroup)
+		r.Post("/", createGroup)
+		r.Put("/{id}", updateGroup)
+		r.Delete("/{id}", deleteGroup)
+	})
 }
 
-func getGroup(c *fiber.Ctx) error {
-	return c.SendString("Get Group")
+func getGroup(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Get Group"))
 }
 
-func createGroup(c *fiber.Ctx) error {
-	return c.SendString("Create Group")
+func createGroup(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Create Group"))
 }
 
-func updateGroup(c *fiber.Ctx) error {
-	id := c.Params("id")
-	return c.SendString("Update Group " + id)
+func updateGroup(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Update Group"))
 }
 
-func deleteGroup(c *fiber.Ctx) error {
-	id := c.Params("id")
-	return c.SendString("Delete Group " + id)
+func deleteGroup(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Delete Group"))
 }
