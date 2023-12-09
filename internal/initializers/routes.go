@@ -1,13 +1,12 @@
 package initializers
 
 import (
+	"github.com/go-chi/chi/v5"
 	"social-api/internal/routes"
-
-	"github.com/gofiber/fiber/v2"
 )
 
-func Routes(app *fiber.App) {
-	routes.UserRoutes(app)
-	routes.GroupRoutes(app)
-	routes.Login(app)
+func Routes(r chi.Router) {
+	routes.UserRoutes(r)
+	//docs.GroupRoutes(r)
+	//docs.Login(r)
 }

@@ -2,24 +2,32 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/v5"
+	"net/http"
 	"social-api/config"
 	"social-api/internal/initializers"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 )
 
 func init() {
-	config.LoadConfig(".env")
+	_, err := config.LoadConfig(".env")
+	if err != nil {
+		panic(err)
+	}
+
 	config.ConnectToDB()
 }
 
 func main() {
-	app := fiber.New()
+	r := chi.NewRouter()
 
-	initializers.Routes(app)
+	initializers.Routes(r)
 
 	port := viper.Get("WEB_SERVER_PORT")
 
-	app.Listen(fmt.Sprintf(":%s", port))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
+	if err != nil {
+		panic(err)
+	}
 }
