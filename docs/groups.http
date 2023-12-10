@@ -1,0 +1,10 @@
+// Create group
+POST http://localhost:4000/groups/create
+Content-Type: application/json
+
+{
+    "name": "Group 1",
+    "description": "Group 1 description",
+    "admin": 6
+}
+###

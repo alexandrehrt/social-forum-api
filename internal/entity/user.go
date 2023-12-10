@@ -17,7 +17,7 @@ type User struct {
 	Password  string         `json:"password" gorm:"not null" validate:"required,min=6,max=20"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
+	DeletedAt gorm.DeletedAt `json:"-"`
 }
 
 func NewUser(username, email, password string) (*User, error) {

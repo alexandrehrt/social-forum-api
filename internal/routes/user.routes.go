@@ -10,7 +10,7 @@ func UserRoutes(r chi.Router) {
 		r.Get("/", userControllers.GetAllUsers)
 		r.Get("/{id}", userControllers.GetUser)
 		r.Post("/create", userControllers.CreateUser)
-		r.Put("/{id}", userControllers.UpdateUser)
+		//r.Put("/{id}", userControllers.UpdateUser)
 		r.Delete("/{id}", userControllers.DeleteUser)
 	})
 }
