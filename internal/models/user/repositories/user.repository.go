@@ -7,6 +7,7 @@ import (
 	"social-api/config"
 	"social-api/internal/entity"
 	"social-api/internal/shared"
+	"strings"
 )
 
 func Create(user *entity.User) *shared.AppError {
@@ -47,9 +48,16 @@ func FindByID(id string) (*entity.User, *shared.AppError) {
 func FindByUsername(username string) (*entity.User, *shared.AppError) {
 	var user entity.User
 	if err := config.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &shared.AppError{
+				Message:    "Username not found",
+				StatusCode: http.StatusNotFound,
+			}
+		}
+
 		return nil, &shared.AppError{
-			Message:    "Username not found",
-			StatusCode: http.StatusNotFound,
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
 		}
 	}
 
@@ -58,8 +66,8 @@ func FindByUsername(username string) (*entity.User, *shared.AppError) {
 
 func FindByEmail(email string) (*entity.User, *shared.AppError) {
 	var user entity.User
-	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := config.DB.Raw("SELECT * FROM users WHERE email = ?", email).Scan(&user).Error; err != nil {
+		if strings.Contains(err.Error(), "record not found") {
 			return nil, &shared.AppError{
 				Message:    "E-mail not found",
 				StatusCode: http.StatusNotFound,

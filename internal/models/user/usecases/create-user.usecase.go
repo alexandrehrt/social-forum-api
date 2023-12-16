@@ -34,10 +34,14 @@ func Create(user *entity.User) *shared.AppError {
 		}
 	}
 
-	err := userRepositories.FindByEmail(user)
-	if err == nil {
+	userResponse, appError = userRepositories.FindByEmail(user.Email)
+	if appError != nil && appError.StatusCode != http.StatusNotFound {
+		return appError
+	}
+
+	if userResponse != nil && userResponse.Email != "" {
 		return &shared.AppError{
-			Message:    "email already exists",
+			Message:    "e-mail already exists",
 			StatusCode: http.StatusBadRequest,
 		}
 	}
