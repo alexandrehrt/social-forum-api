@@ -1,6 +1,8 @@
 package userRepositories
 
 import (
+	"errors"
+	"gorm.io/gorm"
 	"net/http"
 	"social-api/config"
 	"social-api/internal/entity"
@@ -54,17 +56,32 @@ func FindByUsername(username string) (*entity.User, *shared.AppError) {
 	return &user, nil
 }
 
-func FindByEmail(user *entity.User) error {
-	if err := config.DB.Where("email = ?", user.Email).First(user).Error; err != nil {
-		return err
+func FindByEmail(email string) (*entity.User, *shared.AppError) {
+	var user entity.User
+	if err := config.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &shared.AppError{
+				Message:    "E-mail not found",
+				StatusCode: http.StatusNotFound,
+			}
+		}
+
+		return nil, &shared.AppError{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
-	return nil
+	return &user, nil
 }
 
-func Delete(id string) error {
-	if err := config.DB.Where("id = ?", id).Delete(&entity.User{}).Error; err != nil {
-		return err
+func Delete(id string) *shared.AppError {
+	result := config.DB.Where("id = ?", id).Delete(&entity.User{})
+	if result.Error != nil {
+		return &shared.AppError{
+			Message:    result.Error.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
 	return nil

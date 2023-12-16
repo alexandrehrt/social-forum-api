@@ -10,10 +10,10 @@ import (
 )
 
 func GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := userUseCases.GetAllUsers()
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+	users, appError := userUseCases.GetAllUsers()
+	if appError != nil {
+		w.WriteHeader(appError.StatusCode)
+		w.Write([]byte(appError.Message))
 		return
 	}
 
@@ -29,7 +29,7 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(userResponses)
+	err := json.NewEncoder(w).Encode(userResponses)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -41,7 +41,7 @@ func FindUserByID(w http.ResponseWriter, r *http.Request) {
 
 	userResponse, appErr := userUseCases.FindUserByID(id)
 	if appErr != nil {
-		w.WriteHeader(int(appErr.StatusCode))
+		w.WriteHeader(appErr.StatusCode)
 		w.Write([]byte(appErr.Message))
 		return
 	}
@@ -67,7 +67,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	appError := userUseCases.Create(user)
 	if appError != nil {
-		w.WriteHeader(int(appError.StatusCode))
+		w.WriteHeader(appError.StatusCode)
 		w.Write([]byte(appError.Message))
 		return
 	}
@@ -85,10 +85,10 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	err := userUseCases.DeleteUser(id)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+	appError := userUseCases.DeleteUser(id)
+	if appError != nil {
+		w.WriteHeader(appError.StatusCode)
+		w.Write([]byte(appError.Message))
 		return
 	}
 

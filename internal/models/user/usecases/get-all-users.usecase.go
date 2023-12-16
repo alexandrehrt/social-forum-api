@@ -1,15 +1,15 @@
 package userUseCases
 
 import (
-	"errors"
 	"social-api/internal/models/user/dtos"
 	userRepositories "social-api/internal/models/user/repositories"
+	"social-api/internal/shared"
 )
 
-func GetAllUsers() ([]*userDTO.UserResponse, error) {
-	users, err := userRepositories.FindAll()
-	if err != nil {
-		return nil, errors.New("failed to get all users")
+func GetAllUsers() ([]*userDTO.UserResponse, *shared.AppError) {
+	users, appError := userRepositories.FindAll()
+	if appError != nil {
+		return nil, appError
 	}
 
 	var userResponses []*userDTO.UserResponse
