@@ -1,44 +1,54 @@
 package userUseCases
 
 import (
-	"errors"
-	"fmt"
+	"net/http"
 	"social-api/internal/entity"
-	"social-api/internal/models/user/dtos"
 	userRepositories "social-api/internal/models/user/repositories"
+	"social-api/internal/shared"
 )
 
-func Create(user *entity.User) (*userDTO.UserResponse, error) {
+func Create(user *entity.User) *shared.AppError {
 	if err := user.ValidateUser(); err != nil {
-		return nil, err
+		return &shared.AppError{
+			Message:    err.Error(),
+			StatusCode: http.StatusBadRequest,
+		}
 	}
 
 	if err := user.EncryptPassword(); err != nil {
-		return nil, err
+		return &shared.AppError{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
-	err := userRepositories.FindByUsername(user)
+	userResponse, appError := userRepositories.FindByUsername(user.Username)
+	if appError != nil && appError.StatusCode != http.StatusNotFound {
+		return appError
+	}
+
+	if userResponse != nil && userResponse.Username != "" {
+		return &shared.AppError{
+			Message:    "username already exists",
+			StatusCode: http.StatusBadRequest,
+		}
+	}
+
+	err := userRepositories.FindByEmail(user)
 	if err == nil {
-		return nil, errors.New("username already exists")
+		return &shared.AppError{
+			Message:    "email already exists",
+			StatusCode: http.StatusBadRequest,
+		}
 	}
 
-	err = userRepositories.FindByEmail(user)
-	if err == nil {
-		return nil, errors.New("email already exists")
+	appError = userRepositories.Create(user)
+	if appError != nil {
+		return &shared.AppError{
+			Message:    appError.Message,
+			StatusCode: appError.StatusCode,
+		}
 	}
 
-	user, err = userRepositories.Create(user)
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-
-		return nil, errors.New("failed to create user")
-	}
-
-	userResponse := userDTO.UserResponse{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-	}
-
-	return &userResponse, nil
+	return nil
 }

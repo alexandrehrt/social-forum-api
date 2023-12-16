@@ -7,12 +7,15 @@ import (
 	"social-api/internal/shared"
 )
 
-func Create(user *entity.User) (*entity.User, error) {
+func Create(user *entity.User) *shared.AppError {
 	if err := config.DB.Create(user).Error; err != nil {
-		return nil, err
+		return &shared.AppError{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
-	return user, nil
+	return nil
 }
 
 func FindAll() ([]*entity.User, *shared.AppError) {
@@ -39,12 +42,16 @@ func FindByID(id string) (*entity.User, *shared.AppError) {
 	return &user, nil
 }
 
-func FindByUsername(user *entity.User) error {
-	if err := config.DB.Where("username = ?", user.Username).First(user).Error; err != nil {
-		return err
+func FindByUsername(username string) (*entity.User, *shared.AppError) {
+	var user entity.User
+	if err := config.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		return nil, &shared.AppError{
+			Message:    "Username not found",
+			StatusCode: http.StatusNotFound,
+		}
 	}
 
-	return nil
+	return &user, nil
 }
 
 func FindByEmail(user *entity.User) error {

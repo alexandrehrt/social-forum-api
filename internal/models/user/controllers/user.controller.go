@@ -65,18 +65,14 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userResponse, err := userUseCases.Create(user)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+	appError := userUseCases.Create(user)
+	if appError != nil {
+		w.WriteHeader(int(appError.StatusCode))
+		w.Write([]byte(appError.Message))
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	err = json.NewEncoder(w).Encode(userResponse)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
