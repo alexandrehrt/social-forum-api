@@ -36,19 +36,19 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func FindUserByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	userResponse, err := userUseCases.GetUser(id)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+	userResponse, appErr := userUseCases.FindUserByID(id)
+	if appErr != nil {
+		w.WriteHeader(int(appErr.StatusCode))
+		w.Write([]byte(appErr.Message))
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(userResponse)
+	err := json.NewEncoder(w).Encode(userResponse)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

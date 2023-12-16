@@ -1,8 +1,10 @@
 package userRepositories
 
 import (
+	"net/http"
 	"social-api/config"
 	"social-api/internal/entity"
+	"social-api/internal/shared"
 )
 
 func Create(user *entity.User) (*entity.User, error) {
@@ -13,19 +15,25 @@ func Create(user *entity.User) (*entity.User, error) {
 	return user, nil
 }
 
-func FindAll() ([]*entity.User, error) {
+func FindAll() ([]*entity.User, *shared.AppError) {
 	var users []*entity.User
 	if err := config.DB.Find(&users).Error; err != nil {
-		return nil, err
+		return nil, &shared.AppError{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
 	}
 
 	return users, nil
 }
 
-func FindById(id string) (*entity.User, error) {
+func FindByID(id string) (*entity.User, *shared.AppError) {
 	var user entity.User
 	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
-		return nil, err
+		return nil, &shared.AppError{
+			Message:    "User not found",
+			StatusCode: http.StatusNotFound,
+		}
 	}
 
 	return &user, nil
